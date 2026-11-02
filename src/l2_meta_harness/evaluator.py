@@ -1,0 +1,53 @@
+"""l2_meta_harness — Level-2 Recursive Meta-Harness Evaluator."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, Dict, List
+
+MAX_SKILL_BYTES = 24_576  # 24KB agent skills cap
+MAX_RULES_TOKENS = 20_000
+
+class MetaHarness:
+    """Evaluates agent instructions, skills, and rule budgets for drift."""
+
+    def __init__(self, root_dir: Path | str = ".") -> None:
+        self.root_dir = Path(root_dir)
+
+    def evaluate(self) -> Dict[str, Any]:
+        oversized_skills: List[Dict[str, Any]] = []
+        rules_tokens = 0
+        findings: List[str] = []
+
+        # Check skills
+        for skill_file in self.root_dir.rglob("SKILL.md"):
+            size = skill_file.stat().st_size
+            if size > MAX_SKILL_BYTES:
+                oversized_skills.append({
+                    "path": str(skill_file.relative_to(self.root_dir)),
+                    "size_bytes": size,
+                    "limit_bytes": MAX_SKILL_BYTES,
+                })
+                findings.append(f"Oversized skill: {skill_file.name} ({size} > {MAX_SKILL_BYTES})")
+
+        # Check rules
+        for rule_file in self.root_dir.rglob("*.md"):
+            if "rules" in rule_file.parts or rule_file.name in ("AGENTS.md", "GEMINI.md"):
+                content = rule_file.read_text(encoding="utf-8", errors="ignore")
+                approx_tokens = len(content) // 4
+                rules_tokens += approx_tokens
+
+        budget_status = "PASS" if rules_tokens <= MAX_RULES_TOKENS else "OVERBUDGET"
+        if budget_status == "OVERBUDGET":
+            findings.append(f"Rules tokens {rules_tokens} exceed budget {MAX_RULES_TOKENS}")
+
+        status = "PASS" if not findings else "DRIFT"
+
+        return {
+            "status": status,
+            "rules_tokens_approx": rules_tokens,
+            "rules_budget_max": MAX_RULES_TOKENS,
+            "oversized_skills_count": len(oversized_skills),
+            "oversized_skills": oversized_skills,
+            "findings": findings,
+        }

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Kilo-Org/kilocode/main/schemas/kilo.json",
+  "version": "1.0.0",
+  "name": "l2-meta-harness",
+  "description": "Level-2 Recursive Meta-Harness & Drift Evaluator for AI Agent Rules and Skills (Harness²)",
+  "tools": [
+    {
+      "name": "meta-harness",
+      "command": "meta-harness",
+      "description": "Harness² for autonomous agents. Audits rules budgets (<20k tokens), skill sizes (<24KB), and behavioral drift."
+    }
+  ],
+  "rules": [
+    ".kilo/rules/l2-meta-harness.md"
+  ]
+}

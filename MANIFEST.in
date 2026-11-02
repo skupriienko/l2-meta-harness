@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include requirements.txt
+include requirements-dev.txt
+include src/l2_meta_harness/py.typed
+recursive-include .kilo *.jsonc *.md
