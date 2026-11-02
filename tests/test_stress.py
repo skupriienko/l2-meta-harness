@@ -1,6 +1,8 @@
 import time
 from pathlib import Path
+
 from l2_meta_harness.evaluator import MetaHarness
+
 
 def test_stress_meta_harness(tmp_path: Path):
     # Create 100 mock skills and 50 rules

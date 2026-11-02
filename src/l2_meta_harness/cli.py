@@ -1,9 +1,11 @@
 """CLI interface for l2-meta-harness."""
+
 import argparse
 import json
 import sys
-from pathlib import Path
+
 from l2_meta_harness.evaluator import MetaHarness
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -25,13 +27,16 @@ def main() -> None:
     print(f"  • Estimated Rules Tokens: {res['rules_tokens_approx']} / {res['rules_budget_max']}")
     print(f"  • Oversized Skills (>24KB): {res['oversized_skills_count']}")
 
-    if res['findings']:
+    if res["findings"]:
         print("\n⚠️ Detected Drift Findings:")
-        for f in res['findings']:
+        for f in res["findings"]:
             print(f"    - {f}")
 
-    print(f"\n[RECEIPT] status={res['status']} sensor=meta_harness tokens={res['rules_tokens_approx']}")
+    print(
+        f"\n[RECEIPT] status={res['status']} sensor=meta_harness tokens={res['rules_tokens_approx']}"
+    )
     sys.exit(0 if res["status"] == "PASS" else 1)
+
 
 if __name__ == "__main__":
     main()
