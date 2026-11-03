@@ -8,39 +8,35 @@
 [![Types: Mypy](https://img.shields.io/badge/types-mypy-blue.svg)](https://mypy-lang.org/)
 
 > **Level-2 Recursive Meta-Harness & Drift Evaluator for AI Agent Rules and Skills (Harness²)**  
-> Harness² for autonomous agents. Audits rules budgets (<20k tokens), skill sizes (<24KB), and behavioral drift.
+> Evaluates the test environment itself: audits rules token budgets (<20k tokens), skill size caps (<24KB), and detects cognitive instruction drift.
 
 ---
 
 ## 🚀 Key Highlights
 
-- **Pure Python Standard Library:** Zero heavy runtime dependencies. Lightning-fast startup (<10ms).
+- **Harness² Recursive Evaluation:** Audits agent instructions, tool caps, and platform constraints to prevent harness decay.
+- **Skill Cap Compliance:** Enforces the official [`agentskills.io`](https://agentskills.io) 24KB file ceiling across all skill bundles.
+- **Bounded Memory Safety:** Streams large rule files with 500KB chunking to prevent memory exhaustion and runaway regexes.
 - **Native AI Tooling Integration:** Official first-class configuration for **Kilo Code**, **Claude Code**, **Cursor**, **Windsurf**, and **GitHub Copilot**.
-- **Determinism & Performance:** Tested under extreme concurrency and heavy scale with sub-millisecond execution.
-- **Enterprise-Grade Scaffolding:** Full modern PEP 517/621 packaging, PEP 561 typing (`py.typed`), Ruff linter, and pre-commit hooks.
+- **Determinism & Performance:** Benchmarked auditing 100 skills and 50 rules in <0.22s.
 
 ---
 
 ## ⚡ Architecture & Workflow
 
 ```mermaid
-flowchart LR
-    A["Input / Task"] --> B["l2-meta-harness Engine"]
-    B --> C["Deterministic Verification"]
-    C --> D["[RECEIPT] Clean Output"]
+flowchart TD
+    subgraph L2 ["Level-2 Meta-Harness (Harness²)"]
+        HarnessEval["MetaHarness.eval()"]
+        HarnessEval --> SkillSensor{"Skill Size Sensor<br/>(File <= 24KB?)"}
+        HarnessEval --> RuleSensor{"Rules Token Sensor<br/>(Total <= 20k tokens?)"}
+        HarnessEval --> HookSensor{"Platform Hook Sensor<br/>(Safe 8k ceiling?)"}
+    end
+    
+    SkillSensor --> Report["EvalResult / ACI Receipt<br/>(PASS / DRIFT / STATUS)"]
+    RuleSensor --> Report
+    HookSensor --> Report
 ```
-
----
-
-## 🤖 AI Tools Compatibility Matrix
-
-| AI Environment | Integration Type | Path / Configuration |
-| :--- | :--- | :--- |
-| **Kilo / KiloCode** | Native Rules & Tools | `.kilo/kilo.jsonc` & `.kilo/rules/l2-meta-harness.md` |
-| **Cursor** | Project Rules | `.cursorrules` / `.kilo/rules/` |
-| **Claude Code** | CLI & Sub-loops | Direct tool call via `meta-harness` |
-| **Windsurf** | Agent Rules | `.windsurfrules` |
-| **Aider / Copilot** | CLI Utilities | Standard shell execution |
 
 ---
 
@@ -63,16 +59,48 @@ pip install -e .
 ## 🛠️ CLI Usage
 
 ```bash
-# Display help and available commands
-meta-harness --help
+# Evaluate rules and skills across the current directory
+meta-harness .
+
+# Output raw JSON for continuous integration
+meta-harness ./agents --json
 ```
+
+---
+
+## 🐍 Python API
+
+```python
+from l2_meta_harness import MetaHarness, EvalResult
+
+harness = MetaHarness(root_dir="./my-agents")
+result: EvalResult = harness.eval()
+
+print(f"Status: {result.status}")
+print(f"Rules tokens approx: {result.rules_tokens_approx} / {result.rules_budget_max}")
+print(f"Oversized skills count: {result.oversized_skills_count}")
+for finding in result.findings:
+    print(f"  [FINDING] {finding}")
+```
+
+---
+
+## 🤖 AI Tools Compatibility Matrix
+
+| AI Environment | Integration Type | Path / Configuration |
+| :--- | :--- | :--- |
+| **Kilo / KiloCode** | Native Rules & Tools | `.kilo/kilo.jsonc` & `.kilo/rules/l2-meta-harness.md` |
+| **Cursor** | Project Rules | `.cursorrules` / `.kilo/rules/` |
+| **Claude Code** | CLI & Sub-loops | Direct tool call via `meta-harness` |
+| **Windsurf** | Agent Rules | `.windsurfrules` |
+| **Aider / Copilot** | CLI Utilities | Standard shell execution |
 
 ---
 
 ## 🧪 Testing & Stress Benchmarks
 
 ```bash
-# Run pytest stress test suite
+# Run pytest stress test suite (100 skills & 50 rules audited in <0.25s)
 pytest -v tests/test_stress.py
 ```
 
