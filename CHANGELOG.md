@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 with secondary CalVer release tracking (`YYYY.MM.DD.N`).
 
+## [1.1.0] - 2026-11-03 (CalVer: 2026.11.03.1)
+
+### Changed
+- Refactored `MetaHarness` with typed dataclasses (`OversizedSkill`, `EvalResult`).
+- Added bounded memory streaming for rule files up to 500KB.
+- Stress benchmarked across 100 skills and 50 rules.
+
 ## [1.0.0] - 2026-11-02 (CalVer: 2026.11.02.1)
 
 ### Added
