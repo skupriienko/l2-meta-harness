@@ -1,3 +1,5 @@
-"""Package l2_meta_harness."""
+"""l2-meta-harness: Level-2 Recursive Meta-Harness & Drift Evaluator."""
 
-__version__ = "1.0.0"
+from l2_meta_harness.eval import EvalResult, MetaHarness, OversizedSkill
+
+__all__ = ["EvalResult", "MetaHarness", "OversizedSkill"]

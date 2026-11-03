@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from l2_meta_harness.evaluator import MetaHarness
+from l2_meta_harness.eval import MetaHarness
 
 
 def main() -> None:

@@ -1,7 +1,7 @@
 import time
 from pathlib import Path
 
-from l2_meta_harness.evaluator import MetaHarness
+from l2_meta_harness.eval import MetaHarness
 
 
 def test_stress_meta_harness(tmp_path: Path):
